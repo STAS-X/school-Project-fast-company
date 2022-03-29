@@ -1,0 +1,6 @@
+{
+    "port":8080,
+    "mongoUri": "mongodb+srv://stanislav-x:qQ1234567890@cluster0.allfi.mongodb.net/app?retryWrites=true&w=majority",
+    "user_db": "stanislav-x",
+    "pass_bd":"qQ1234567890"
+}
