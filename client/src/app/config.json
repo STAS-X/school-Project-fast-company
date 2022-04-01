@@ -1,0 +1,13 @@
+{
+    "apiEndpoint": "https://fastcompanyxxx-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    "isFireBase": false,
+    "dbFirebasePrivateKey": "AIzaSyDYS2BdWvzjqhGs3OQHolXOKJNWc5T8Bvg",
+    "isMongoBase": true,
+    "apiDataEndpoint": "http://localhost:8080/api/",
+    "mongoDb": {
+        "port": 8080,
+        "mongoUri": "mongodb+srv://<login>:<password>@cluster0.allfi.mongodb.net/app?retryWrites=true&w=majority",
+        "user_db": "stanislav-x",
+        "pass_db": "qQ1234567890"
+    }
+}

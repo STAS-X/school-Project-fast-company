@@ -5,15 +5,19 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "cross-env NODE_ENV=production node app.js",
-		"serve": "cross-env NODE_ENV=development nodemon app.js"
+		"serve": "cross-env NODE_ENV=development nodemon app.js",
+		"client": "cd ../client && react-scripts start --prefix client",
+		"dev": "concurrently \"npm run serve\" \"npm run client\""
 	},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
 		"chalk": "^4.1.2",
+		"concurrently": "^7.0.0",
 		"config": "^3.3.7",
 		"express": "^4.17.3",
-		"mongoose": "^6.2.8"
+		"mongoose": "^6.2.8",
+		"node-fetch": "^2.6.7"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",

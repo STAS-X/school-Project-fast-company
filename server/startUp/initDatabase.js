@@ -5,7 +5,12 @@ const Quality = require('../models/Quality');
 const professionMock = require('../mock/profession.json');
 const qualitiesMock = require('../mock/qualities.json');
 
-module.exports = async () => {
+const config = require('config');
+const mongoose = require('mongoose');
+
+const options = { server: { socketOptions: { keepAlive: 1, noDelay:true } } };
+
+async function initDb() {
     const professions = await Profession.find();
     if (professions.length !== professionMock.length) {
         await createInitialEntity(Profession, professionMock);
@@ -16,6 +21,14 @@ module.exports = async () => {
 		}
 
 }
+
+async function getEntityCollectionFromLiveMongoDB(collectionName) {
+		const mongoDb = await mongoose.connect(config.get('mongoUri'), options);
+        const dbName = mongoDb.connection.name;
+		return await mongoDb.connection.client
+			.db(dbName)
+			.collection(collectionName);
+	};
 
 async function createInitialEntity(Model, data) {
     await Model.collection.drop();
@@ -31,3 +44,5 @@ async function createInitialEntity(Model, data) {
         }
     }))
 }
+
+module.exports = { initDb, getEntityCollectionFromLiveMongoDB };

@@ -1,31 +1,31 @@
 [
 	{
-		"_id": "67rdca3eeb7f6fgeed471198",
+		"_id": "67edca3eeb7f6ageed471198",
 		"name": "Нудила",
 		"color": "primary"
 	},
 	{
-		"_id": "67rdca3eeb7f6fgeed471100",
+		"_id": "67edca3eeb7f6ageed471100",
 		"name": "Странный",
 		"color": "secondary"
 	},
 	{
-		"_id": "67rdca3eeb7f6fgeed4711012",
+		"_id": "67edca3eeb7f6ageed4711012",
 		"name": "Троль",
 		"color": "success"
 	},
 	{
-		"_id": "67rdca3eeb7f6fgeed471101",
+		"_id": "67edca3eeb7f6ageed471101",
 		"name": "Алкоголик",
 		"color": "danger"
 	},
 	{
-		"_id": "67rdca3eeb7f6fgeed471102",
+		"_id": "67edca3eeb7f6ageed471102",
 		"name": "Красавчик",
 		"color": "info"
 	},
 	{
-		"_id": "67rdca3eeb7f6fgeed471103",
+		"_id": "67edca3eeb7f6ageed471103",
 		"name": "Неуверенный",
 		"color": "dark"
 	}

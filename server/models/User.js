@@ -2,25 +2,41 @@ const { Schema, model } = require('mongoose');
 //const Profession = require('./Profession');
 //const Quality = require('./Quality');
 
+const isEmail = (value) => {
+	return /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(value);
+};
+
 const schema = new Schema(
 	{
+		id: {
+			type: String,
+		},
 		name: {
 			type: String,
-			required: true,
+			trim: true,
+			required: 'Name must be not empty',
 		},
 		email: {
 			type: String,
-			required: true,
+			required: 'Email must be not empty',
+			trim: true,
+			lowercase: true,
+			validate: [
+				{ validator: (value) => isEmail(value), msg: 'Invalid email.' },
+			],
 			unique: true,
 		},
 		password: {
 			type: String,
-			required: true,
+			required: 'Password must be not empty',
+		},
+		bookmark: {
+			type: Boolean,
+			default: false
 		},
 		completedMeetings: Number,
 		image: {
 			type: String,
-			required: true,
 		},
 		rate: Number,
 		sex: {
@@ -28,16 +44,19 @@ const schema = new Schema(
 			enum: 'male' | 'female' | 'other',
 		},
 		profession: {
-			type: Schema.Types.ObjectId,
+			type: String,
+			// type: Schema.Types.ObjectId,
 			ref: 'Profession',
 			required: true,
 		},
-		qualities: [{
-			type: Schema.Types.ObjectId,
-			ref: 'Quality',
-			isArray: true,
-			required: true,
-		}],
+		qualities: [
+			{
+				type: String,
+				// type: Schema.Types.ObjectId,
+				ref: 'Quality',
+				required: true,
+			},
+		],
 	},
 	{
 		timestamps: true,
