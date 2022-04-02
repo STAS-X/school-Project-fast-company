@@ -5,6 +5,10 @@ const { Schema, model } = require('mongoose');
 const isEmail = (value) => {
 	return /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(value);
 };
+const isPassword = (value) => {
+	console.log(password);
+	return /^(?=.*?[a-z])(?=.*?[A-Z])[a-zA-Z0-9]{3}$/.test(value);
+};
 
 const schema = new Schema(
 	{
@@ -14,7 +18,7 @@ const schema = new Schema(
 		name: {
 			type: String,
 			trim: true,
-			required: 'Name must be not empty',
+			// required: 'Name must be not empty',
 		},
 		email: {
 			type: String,
@@ -29,10 +33,13 @@ const schema = new Schema(
 		password: {
 			type: String,
 			required: 'Password must be not empty',
+			// validate: [
+			//	{ validator: (value) => isPassword(value), msg: 'Invalid password.' },
+			// ],
 		},
 		bookmark: {
 			type: Boolean,
-			default: false
+			default: false,
 		},
 		completedMeetings: Number,
 		image: {
@@ -47,16 +54,20 @@ const schema = new Schema(
 			type: String,
 			// type: Schema.Types.ObjectId,
 			ref: 'Profession',
-			required: true,
+			default: '67edca3eeb7f6ageed471818',
+			// required: true,
 		},
-		qualities: [
-			{
-				type: String,
-				// type: Schema.Types.ObjectId,
-				ref: 'Quality',
-				required: true,
-			},
-		],
+		qualities: {
+			type: [
+				{
+					type: String,
+					// type: Schema.Types.ObjectId,
+					ref: 'Quality',
+					// required: true,
+				},
+			],
+			default: ['67edca3eeb7f6ageed471198'],
+		},
 	},
 	{
 		timestamps: true,

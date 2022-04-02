@@ -24,10 +24,10 @@ http.interceptors.request.use(
                 const data = await authService.refresh();
 
                 localStorageService.setTokens({
-                    refreshToken: data.refresh_token,
-                    idToken: data.id_token,
-                    expiresIn: data.expires_in,
-                    localId: data.user_id
+                    refreshToken: data.refreshToken,
+                    accessToken: data.accessToken,
+                    expiresIn: data.expiresIn,
+                    userId: data.userId
                 });
             }
             const accessToken = localStorageService.getAccessToken();

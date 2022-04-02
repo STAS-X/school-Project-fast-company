@@ -40,6 +40,7 @@ const EditUserPage = () => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
+        console.log(data);
         dispatch(
             updateUser({
                 ...data,
