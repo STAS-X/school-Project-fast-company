@@ -15,7 +15,6 @@ const wobble = cssTransition({
 
 const initOpts = {
     position: toast.POSITION.TOP_CENTER,
-    theme: "colored",
     icon: true,
     hideProgressBar: true,
     draggable: true,
@@ -27,6 +26,7 @@ const initOpts = {
 export function toastSuccessBounce(text) {
     toast.success("👌 " + text, {
         ...initOpts,
+        theme: "colored",
         transition: bounce
     });
 }
@@ -49,6 +49,7 @@ export function toastDarkBounce(text) {
 export function toastSuccessSwirl(text) {
     toast.success("👌 " + text, {
         ...initOpts,
+        theme: "colored",
         transition: wobble
     });
 }

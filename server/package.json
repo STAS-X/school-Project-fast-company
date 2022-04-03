@@ -21,6 +21,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^6.2.8",
 		"node-fetch": "^2.6.7",
+		"query-string": "^7.1.1",
 		"react-scripts": "^4.0.3"
 	},
 	"devDependencies": {

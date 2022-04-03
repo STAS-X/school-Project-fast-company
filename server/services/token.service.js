@@ -19,28 +19,34 @@ class TokenService {
 	}
 
 	async save(userId, refreshToken) {
-
-        const data = await Token.findOne({ userId });
+		const data = await Token.findOne({ userId });
 
 		if (data) {
 			data.refreshToken = refreshToken;
 			return await data.save();
 		}
 		const token = await Token.create({
-			userId, refreshToken
+			userId,
+			refreshToken,
 		});
 		return token;
 	}
 
-    validateRefresh(refreshToken) {
-        try {
+	validateRefresh(refreshToken) {
+		try {
+			return jwt.verify(refreshToken, config.get('refreshSecret'));
+		} catch (error) {
+			return null;
+		}
+	}
 
-           return jwt.verify(refreshToken, config.get('refreshSecret'));
-        
-        } catch(error) {
-            return null;
-        }
-    }
+	validateAccess(accessToken) {
+		try {
+			return jwt.verify(accessToken, config.get('accessSecret'));
+		} catch (error) {
+			return null;
+		}
+	}
 }
 
 module.exports = new TokenService();

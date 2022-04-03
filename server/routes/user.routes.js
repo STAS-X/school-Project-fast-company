@@ -1,5 +1,6 @@
 const express = require('express');
-// const User = require('../models/User');
+const User = require('../models/User');
+const auth = require('../middleware/auth.middlware') 
 const { generateUserData } = require('../utils/helpers');
 const router = express.Router({ mergeParams: true });
 
@@ -7,6 +8,7 @@ const ObjectId = require('mongodb').ObjectId;
 const {
 	getEntityCollectionFromLiveMongoDB,
 } = require('../startUp/initDatabase');
+
 
 function isIdValid(id) {
 	try {
@@ -68,18 +70,42 @@ async function put(req, res) {
 	}
 }
 
-router.put('/', async (req, res) => {
+router.put('/', [ auth, async (req, res) => {
 	await put(req, res);
-});
-router
-	.put('/:id', async (req, res) => {
-		await put(req, res);
-	})
-	.patch('/:id', async (req, res) => {
-		await put(req, res);
-	});
+}]);
+router.put('/:id', [ auth, async (req, res) => {
+	await put(req, res);
+}]);
 
-router.get('/:id', async (req, res) => {
+router.patch('/:userId', [
+	auth,
+	async (req, res) => {
+		try {
+			const { userId } = req.params;
+			const updatedUser = await User.findOneAndUpdate(
+				{ id: { $eq: userId } },
+				req.body,
+				{
+					new: true,
+				}
+			);
+
+			if (userId === req.user._id) {
+				if (updatedUser.id) {
+					updatedUser._id = updatedUser.id;
+					delete updatedUser.id;
+				}
+				res.status(200).send(updatedUser);
+			} else return res.status(401).json({ message: 'Unautorized' });
+		} catch (error) {
+			res.status(500).json({
+				message: `На сервере произошла ошибка. ${error.message} Попробуйте позже`,
+			});
+		}
+	},
+]);
+
+router.get('/:id', [ auth, async (req, res) => {
 	try {
 		const { id } = req.params;
 		const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
@@ -96,7 +122,7 @@ router.get('/:id', async (req, res) => {
 					qualities: '$qualities',
 					completedMeetings: '$completedMeetings',
 					rate: '$rate',
-					bookmark: '$bookmark'
+					bookmark: '$bookmark',
 				},
 			}
 		);
@@ -106,9 +132,9 @@ router.get('/:id', async (req, res) => {
 			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
 		});
 	}
-});
+}]);
 
-router.get('/', async (req, res) => {
+router.get('/', [ auth, async (req, res) => {
 	try {
 		const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
 		const list = await mongoUsers
@@ -123,7 +149,7 @@ router.get('/', async (req, res) => {
 				qualities: '$qualities',
 				completedMeetings: '$completedMeetings',
 				rate: '$rate',
-				bookmark: '$bookmark'
+				bookmark: '$bookmark',
 			})
 			.toArray();
 		res.status(200).json(list);
@@ -132,6 +158,6 @@ router.get('/', async (req, res) => {
 			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
 		});
 	}
-});
+}]);
 
 module.exports = router;

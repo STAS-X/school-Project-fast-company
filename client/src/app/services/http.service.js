@@ -15,6 +15,7 @@ const http = axios.create({
 http.interceptors.request.use(
     async function (config) {
         if (configFile.isMongoBase) {
+            console.log(config);
             // const containSlash = /\/$/gi.test(config.url);
             // config.url =
             //     (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
@@ -33,6 +34,10 @@ http.interceptors.request.use(
             const accessToken = localStorageService.getAccessToken();
             if (accessToken) {
                 config.params = { ...config.params, auth: accessToken };
+                config.headers = {
+                    ...config.headers,
+                    Authorization: `Bearer ${accessToken}`
+                };
             }
         }
         return config;
@@ -64,7 +69,9 @@ http.interceptors.response.use(
         if (!expectedErrors) {
             console.log(error);
             toastDarkBounce(
-                `При запросе данных произошла ошибка: ${error.message}`
+                `При запросе данных произошла ошибка: ${
+                    error.message ? error.message : error.response.message
+                }`
             );
         }
         return Promise.reject(error);

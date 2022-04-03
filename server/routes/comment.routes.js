@@ -1,4 +1,5 @@
 const express = require('express');
+const queryString = require('query-string');
 const router = express.Router({ mergeParams: true });
 
 const {
@@ -7,9 +8,13 @@ const {
 
 async function get(req, res) {
 	try {
+
+		const { orderBy, equalTo } = queryString.parse(req.url.replace(/\/\?/g,''));
+
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
 		const list = await mongoComment
-			.find({})
+			.find(orderBy && equalTo ? { [`${orderBy.replace(/"/g, '')}`]: equalTo.replace(/"/g, '') } : {})
+			.sort({ created_at: 1 })
 			.project({
 				_id: '$id',
 				content: '$content',
@@ -18,6 +23,7 @@ async function get(req, res) {
 				created_at: '$created_at',
 			})
 			.toArray();
+
 		res.status(200).json(list);
 	} catch (e) {
 		res.status(500).json({
@@ -30,17 +36,14 @@ router.get('/', async (req, res) => {
 	await get(req, res);
 });
 
-router.get('/:params', async (req, res) => {
-	await get(req, res);
-});
-
 router.put('/:id', async (req, res) => {
 	try {
 		const { id } = req.params;
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
 
 		const updateComment = req.body;
-        const newId = id ? id : updateComment._id;
+		const newId = id ? id : updateComment._id;
+
 		if (updateComment._id) delete updateComment._id;
 
 		const result = await mongoComment.findOneAndUpdate(
@@ -50,7 +53,7 @@ router.put('/:id', async (req, res) => {
 					$set: {
 						...updateComment,
 						id: newId,
-                        created_at: { $toDate: '$$NOW' },
+						created_at: { $toDate: '$$NOW' },
 						updatedAt: { $toDate: '$$NOW' },
 						createdAt: {
 							$cond: {
@@ -84,8 +87,7 @@ router.delete('/:id', async (req, res) => {
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
 		const result = await mongoComment.deleteOne({ id: { $eq: id } });
 
-		if (result.deletedCount === 1)
-			res.status(200).json({});
+		if (result.deletedCount === 1) res.status(200).json({});
 		else res.status(500).json({ message: `Comment ${id} not found` });
 	} catch (e) {
 		res.status(500).json({
