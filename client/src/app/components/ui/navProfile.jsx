@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getCurrentUserData } from "../../store/users";
+import {
+    getCurrentUserData
+} from "../../store/users";
+
 const NavProfile = () => {
     const currentUser = useSelector(getCurrentUserData());
     const [isOpen, setOpen] = useState(false);

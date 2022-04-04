@@ -1,5 +1,4 @@
 import axios from "axios";
-// import { toast } from "react-toastify";
 import { toastDarkBounce } from "../utils/animateTostify";
 import configFile from "../config.json";
 import authService from "./auth.service";
@@ -11,16 +10,27 @@ const http = axios.create({
         ? configFile.apiDataEndpoint
         : configFile.apiEndpoint
 });
+// const dispatch = useDispatch();
 
 http.interceptors.request.use(
     async function (config) {
         if (configFile.isMongoBase) {
-            console.log(config);
             // const containSlash = /\/$/gi.test(config.url);
             // config.url =
             //     (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
             const expiresDate = localStorageService.getTokenExpiresDate();
             const refreshToken = localStorageService.getRefreshToken();
+            // const expireSession =
+            //     Math.floor(Math.abs(expiresDate - Date.now()) / 1000 / 3600) %
+            //     24;
+            // if (refreshToken && expireSession >= 0) {
+            //     config.headers = {
+            //         ...config.headers,
+            //         Authorization: ""
+            //     };
+            //     return config;
+            // }
+
             if (refreshToken && expiresDate < Date.now()) {
                 const data = await authService.refresh();
 
@@ -67,7 +77,6 @@ http.interceptors.response.use(
             error.response.status < 500;
 
         if (!expectedErrors) {
-            console.log(error);
             toastDarkBounce(
                 `При запросе данных произошла ошибка: ${
                     error.message ? error.message : error.response.message

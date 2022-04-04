@@ -47,12 +47,15 @@ router.post('/signUp', [
 			const tokens = tokenService.generate({ _id: newUser.id });
 			await tokenService.save(newUser.id, tokens.refreshToken);
 
-            console.log({ ...tokens, userId: newUser.id });
+			console.log({ ...tokens, userId: newUser.id });
 			res.status(201).send({ ...tokens, userId: newUser.id });
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({
-				message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
+				error: {
+					message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
+					code: 400,
+				},
 			});
 		}
 	},
@@ -102,15 +105,18 @@ router.post('/signInWithPassword', [
 
 			res.status(200).send({ ...tokens, userId: existingUser.id });
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'На сервере произошла ошибка. Попробуйте позже' });
+			res.status(500).json({
+				error: {
+					message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
+					code: 400,
+				},
+			});
 		}
 	},
 ]);
 
 function istokenInvalid(data, dbToken) {
-	return !data || !dbToken || data._id != dbToken?.userId.toString();
+	return !data || !dbToken || data._id != dbToken.userId.toString();
 }
 
 router.post('/token', async (req, res) => {
@@ -119,7 +125,16 @@ router.post('/token', async (req, res) => {
 		const data = tokenService.validateRefresh(refreshToken);
 		const dbToken = await Token.findOne({ refreshToken });
 
+		const expireSession =
+			dbToken && dbToken.expiresDate
+				? Math.floor(Math.abs(dbToken.expiresDate - Date.now()) / 1000 / 3600) %
+				  24
+				: 0;
 		if (istokenInvalid(data, dbToken)) {
+			if (expireSession > 2)
+				return res.status(401).json({
+					message: `Current session expired by ${expireSession} hours. Reauthorization required.`,
+				});
 			return res.status(401).json({ message: 'Unautorized' });
 		}
 

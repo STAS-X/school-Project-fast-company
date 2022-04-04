@@ -25,16 +25,14 @@ async function start() {
         mongoose.connection.once('open', ()=>{
             initDb();
         });
-        mongoose.connect(
-					config.get('mongoUri'),
-					{
-						useNewUrlParser: true,
-						useUnifiedTopology: true,
-					});
+        mongoose.connect(config.get('mongoUri'), {
+					// useNewUrlParser: true,
+					// useUnifiedTopology: true,
+				});
         console.log(chalk.green(`MongoDB connect`));
-        app.listen(PORT, () => {
-					console.log(chalk.green(`Server has been starte on ${PORT} port`));
-                });
+         app.listen(PORT, () => {
+		  			console.log(chalk.green(`Server has been starte on ${PORT} port`));
+                 });
     } catch(e) {
         console.log(chalk.red(e));
         process.exit(1);

@@ -1,5 +1,5 @@
 const express = require('express');
-const queryString = require('query-string');
+const auth = require('../middleware/auth.middlware'); 
 const router = express.Router({ mergeParams: true });
 
 const {
@@ -9,11 +9,15 @@ const {
 async function get(req, res) {
 	try {
 
-		const { orderBy, equalTo } = queryString.parse(req.url.replace(/\/\?/g,''));
+		const { orderBy, equalTo } = req.query; // queryString.parse(req.url.replace(/\/\?/g,''));
 
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
 		const list = await mongoComment
-			.find(orderBy && equalTo ? { [`${orderBy.replace(/"/g, '')}`]: equalTo.replace(/"/g, '') } : {})
+			.find(
+				orderBy && equalTo
+					? { [`${orderBy.replace(/"/g, '')}`]: equalTo.replace(/"/g, '') }
+					: {}
+			)
 			.sort({ created_at: 1 })
 			.project({
 				_id: '$id',
@@ -32,18 +36,17 @@ async function get(req, res) {
 	}
 }
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => { 
 	await get(req, res);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', [auth, async (req, res) => {
 	try {
 		const { id } = req.params;
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
 
 		const updateComment = req.body;
 		const newId = id ? id : updateComment._id;
-
 		if (updateComment._id) delete updateComment._id;
 
 		const result = await mongoComment.findOneAndUpdate(
@@ -52,6 +55,7 @@ router.put('/:id', async (req, res) => {
 				{
 					$set: {
 						...updateComment,
+                        userId: req.user._id,
 						id: newId,
 						created_at: { $toDate: '$$NOW' },
 						updatedAt: { $toDate: '$$NOW' },
@@ -79,21 +83,28 @@ router.put('/:id', async (req, res) => {
 			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
 		});
 	}
-});
+}]);
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:commentId', [auth, async (req, res) => { 
 	try {
-		const { id } = req.params;
+		const { commentId } = req.params;
 		const mongoComment = await getEntityCollectionFromLiveMongoDB('comments');
-		const result = await mongoComment.deleteOne({ id: { $eq: id } });
+		const removeComment = await mongoComment.findOne({ id: { $eq: commentId }});
+console.log(req.user);
 
-		if (result.deletedCount === 1) res.status(200).json({});
-		else res.status(500).json({ message: `Comment ${id} not found` });
+        if (!removeComment) return res
+					.status(400)
+					.json({ message: `Comment ${commentId} not found` });
+        if (removeComment && removeComment.userId.toString() === req.user._id) {
+
+           await mongoComment.deleteOne({ id: { $eq: commentId } });
+           return res.send(null);
+        } else res.status(401).json({ message: `Unautorized` });
 	} catch (e) {
 		res.status(500).json({
 			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
 		});
 	}
-});
+}]);
 
 module.exports = router;

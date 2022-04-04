@@ -3,6 +3,7 @@ import authService from "../services/auth.service";
 import localStorageService from "../services/localStorage.service";
 import userService from "../services/user.service";
 import { generetaAuthError } from "../utils/generateAuthError";
+import { toastErrorBounce } from "../utils/animateTostify";
 import getRandomInt from "../utils/getRandomInt";
 import history from "../utils/history";
 const initialState = localStorageService.getAccessToken()
@@ -103,7 +104,7 @@ export const login =
             const { code, message } = error.response.data.error;
             if (code === 400) {
                 const errorMessage = generetaAuthError(message);
-                dispatch(authRequestFailed(errorMessage));
+                dispatch(authRequestFailed({ message: errorMessage }));
             } else {
                 dispatch(authRequestFailed(error.message));
             }
@@ -153,20 +154,27 @@ function createUser(payload) {
         }
     };
 }
-export const loadUsersList = () => async (dispatch) => {
+export const loadUsersList = () => async (dispatch, state) => {
     dispatch(usersRequested());
     try {
         const { content } = await userService.get();
         dispatch(usersReceved(content));
     } catch (error) {
         dispatch(usersRequestFiled(error.message));
+        if (
+            !state().users.entities &&
+            state().users.isLoggedIn &&
+            state().users.error === "Request failed with status code 401"
+        ) {
+            toastErrorBounce("Требуется повторная авторизация");
+            dispatch(logOut());
+        }
     }
 };
 export const updateUser = (payload) => async (dispatch) => {
     dispatch(userUpdateRequested());
     try {
         const { content } = await userService.update(payload);
-        console.log(content, "content");
         dispatch(userUpdateSuccessed(content));
         history.push(`/users/${content._id}`);
     } catch (error) {
@@ -194,5 +202,6 @@ export const getIsLoggedIn = () => (state) => state.users.isLoggedIn;
 export const getDataStatus = () => (state) => state.users.dataLoaded;
 export const getUsersLoadingStatus = () => (state) => state.users.isLoading;
 export const getCurrentUserId = () => (state) => state.users.auth.userId;
-export const getAuthErrors = () => (state) => state.users.error;
+export const getAuthErrors = () => (state) =>
+    state.users.error?.message ? state.users.error?.message : state.users.error;
 export default usersReducer;
