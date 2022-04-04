@@ -4,7 +4,7 @@ const Token = require('../models/Token');
 const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const tokenService = require('../services/token.service');
-const { generateUserData } = require('../utils/helpers');
+// const { generateUserData } = require('../utils/helpers');
 const ObjectId = require('mongodb').ObjectId;
 const router = express.Router({ mergeParams: true });
 
@@ -37,7 +37,6 @@ router.post('/signUp', [
 			}
 			const hashedPass = await bcrypt.hash(password, 10);
 			const newUser = await User.create({
-				...generateUserData(),
 				...req.body,
 				password: hashedPass,
 			});

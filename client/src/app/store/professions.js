@@ -49,7 +49,7 @@ export const getProfessionsLoadingStatus = () => (state) =>
 export const getProfessionbyId = (id) => (state) => {
     if (state.professions.entities) {
         return state.professions.entities.find((p) => {
-            // console.log(p._id, id);
+            // console.log(p._id, p.name, id);
             return p._id === id;
         });
     }

@@ -34,16 +34,10 @@ http.interceptors.request.use(
             if (refreshToken && expiresDate < Date.now()) {
                 const data = await authService.refresh();
 
-                localStorageService.setTokens({
-                    refreshToken: data.refreshToken,
-                    accessToken: data.accessToken,
-                    expiresIn: data.expiresIn,
-                    userId: data.userId
-                });
+                localStorageService.setTokens(data);
             }
             const accessToken = localStorageService.getAccessToken();
             if (accessToken) {
-                config.params = { ...config.params, auth: accessToken };
                 config.headers = {
                     ...config.headers,
                     Authorization: `Bearer ${accessToken}`
@@ -53,6 +47,7 @@ http.interceptors.request.use(
         return config;
     },
     function (error) {
+        console.log("Обнаружена ошибка при работе запроса");
         return Promise.reject(error);
     }
 );
