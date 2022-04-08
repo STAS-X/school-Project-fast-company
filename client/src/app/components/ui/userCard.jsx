@@ -1,15 +1,69 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router";
-import { useSelector } from "react-redux";
-import { getCurrentUserData } from "../../store/users";
-const UserCard = ({ user }) => {
-    const history = useHistory();
+import { useDispatch, useSelector } from "react-redux";
+import {
+    getCurrentUserData,
+    getUserById,
+    updateUserData
+} from "../../store/users";
 
+const UserCard = ({ user }) => {
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const [rateDirection, setDirectionRate] = useState();
+    const { rate } = useSelector(getUserById(user._id));
     const currentUser = useSelector(getCurrentUserData());
+
+    const updateCaretUpClass = useMemo(
+        () =>
+            rateDirection === "inc"
+                ? `bi bi-caret-up-fill text-${
+                      currentUser._id !== user._id ? "primary" : "secondary"
+                  }`
+                : "bi bi-caret-up text-secondary",
+        [rateDirection]
+    );
+
+    useEffect(() => setDirectionRate("dec"), []);
+
+    const updateCaretDownClass = useMemo(() => {
+        return rateDirection === "dec"
+            ? `bi bi-caret-down-fill text-${
+                  currentUser._id !== user._id ? "primary" : "secondary"
+              }`
+            : "bi bi-caret-down text-secondary";
+    }, [rateDirection]);
+
     const handleClick = () => {
         history.push(history.location.pathname + "/edit");
     };
+    const handleIncrementRate = () => {
+        if (currentUser._id !== user._id) {
+            setDirectionRate("inc");
+            dispatch(
+                updateUserData({
+                    _id: user._id,
+                    type: "rate",
+                    rateDirection: "inc"
+                })
+            );
+        }
+    };
+
+    const handleDecrementRate = () => {
+        if (currentUser._id !== user._id) {
+            setDirectionRate("dec");
+            dispatch(
+                updateUserData({
+                    _id: user._id,
+                    type: "rate",
+                    rateDirection: "dec"
+                })
+            );
+        }
+    };
+
     return (
         <div className="card mb-3">
             <div className="card-body">
@@ -35,14 +89,16 @@ const UserCard = ({ user }) => {
                         </p>
                         <div className="text-muted">
                             <i
-                                className="bi bi-caret-down-fill text-primary"
+                                className={updateCaretDownClass}
                                 role="button"
+                                onClick={handleDecrementRate}
                             ></i>
                             <i
-                                className="bi bi-caret-up text-secondary"
+                                className={updateCaretUpClass}
                                 role="button"
+                                onClick={handleIncrementRate}
                             ></i>
-                            <span className="ms-2">{user.rate}</span>
+                            <span className="ms-2">{rate}</span>
                         </div>
                     </div>
                 </div>

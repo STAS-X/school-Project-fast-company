@@ -6,6 +6,10 @@ const userEndpoint = "user/";
 const userService = {
     get: async () => {
         const { data } = await httpService.get(userEndpoint);
+        data.content = data.content.map((item) => {
+            if (item.rate) item.rate = item.rate.toFixed(1);
+            return item;
+        });
         return data;
     },
     create: async (payload) => {

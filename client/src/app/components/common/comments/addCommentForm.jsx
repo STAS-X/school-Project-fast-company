@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 // import { getCurrentUserData } from "../../../store/users";
 
 const AddCommentForm = ({ onSubmit }) => {
-    const [data, setData] = useState({});
+    const [data, setData] = useState({ content: "" });
     const [errors, setErrors] = useState({});
     // const currentUser = useSelector(getCurrentUserData());
     // const { userId } = useParams();
@@ -34,7 +34,7 @@ const AddCommentForm = ({ onSubmit }) => {
     };
 
     const clearForm = () => {
-        setData({});
+        setData({ content: "" });
         setErrors({});
     };
     const handleSubmit = (e) => {
@@ -50,7 +50,7 @@ const AddCommentForm = ({ onSubmit }) => {
             <h2>New comment</h2>
             <form onSubmit={handleSubmit}>
                 <TextAreaField
-                    value={data.content || ""}
+                    value={data.content}
                     onChange={handleChange}
                     name="content"
                     label="Сообщение"

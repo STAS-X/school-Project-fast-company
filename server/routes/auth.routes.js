@@ -17,11 +17,9 @@ router.post('/signUp', [
 
 			if (!result.isEmpty()) {
 				return res.status(400).json({
-					error: {
-						message: 'INVALID_DATA',
-						errors: result.array(),
-						code: 400,
-					},
+					message: 'INVALID_DATA',
+					errors: result.array(),
+					code: 400,
 				});
 			}
 
@@ -29,10 +27,8 @@ router.post('/signUp', [
 			const existUser = await User.findOne({ email });
 			if (existUser) {
 				return res.status(400).json({
-					error: {
-						message: 'EMAIL_EXISTS',
-						code: 400,
-					},
+					message: 'EMAIL_EXISTS',
+					code: 400,
 				});
 			}
 			const hashedPass = await bcrypt.hash(password, 10);
@@ -46,15 +42,11 @@ router.post('/signUp', [
 			const tokens = tokenService.generate({ _id: newUser.id });
 			await tokenService.save(newUser.id, tokens.refreshToken);
 
-			console.log({ ...tokens, userId: newUser.id });
 			res.status(201).send({ ...tokens, userId: newUser.id });
 		} catch (error) {
-			console.log(error);
 			res.status(500).json({
-				error: {
-					message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
-					code: 400,
-				},
+				message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
+				code: 400,
 			});
 		}
 	},
@@ -69,11 +61,9 @@ router.post('/signInWithPassword', [
 
 			if (!result.isEmpty()) {
 				return res.status(400).json({
-					error: {
-						message: 'INVALID_DATA',
-						errors: result.array(),
-						code: 400,
-					},
+					message: 'INVALID_DATA',
+					errors: result.array(),
+					code: 400,
 				});
 			}
 
@@ -82,20 +72,16 @@ router.post('/signInWithPassword', [
 
 			if (!existingUser) {
 				return res.status(400).send({
-					error: {
-						message: 'EMAIL_NOT_FOUND',
-						code: 400,
-					},
+					message: 'EMAIL_NOT_FOUND',
+					code: 400,
 				});
 			}
 
 			const isPassEqual = await bcrypt.compare(password, existingUser.password);
 			if (!isPassEqual) {
 				return res.status(400).send({
-					error: {
-						message: 'INVALID_PASSWORD',
-						code: 400,
-					},
+					message: 'INVALID_PASSWORD',
+					code: 400,
 				});
 			}
 
@@ -105,10 +91,8 @@ router.post('/signInWithPassword', [
 			res.status(200).send({ ...tokens, userId: existingUser.id });
 		} catch (error) {
 			res.status(500).json({
-				error: {
-					message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
-					code: 400,
-				},
+				message: `На сервере произошла ошибка ${error.message}. Попробуйте позже`,
+				code: 400,
 			});
 		}
 	},

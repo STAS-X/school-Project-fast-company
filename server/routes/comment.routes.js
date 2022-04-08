@@ -71,6 +71,7 @@ router.post('/', [
 					upsert: true,
 				}
 			);
+
 			const newComment = await mongoComment.findOne({
 				_id: { $eq: ObjectId(resultComment.lastErrorObject.upserted) },
 			});

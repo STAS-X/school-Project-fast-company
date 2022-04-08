@@ -3,12 +3,12 @@ import authService from "../services/auth.service";
 import localStorageService from "../services/localStorage.service";
 import userService from "../services/user.service";
 import { generetaAuthError } from "../utils/generateAuthError";
-import { toastErrorBounce } from "../utils/animateTostify";
+// import { toastErrorBounce } from "../utils/animateTostify";
 import history from "../utils/history";
 const initialState = localStorageService.getAccessToken()
     ? {
           entities: null,
-          isLoading: true,
+          isLoading: false,
           error: null,
           auth: { userId: localStorageService.getUserId() },
           isLoggedIn: true,
@@ -35,7 +35,7 @@ const usersSlice = createSlice({
             state.dataLoaded = true;
             state.isLoading = false;
         },
-        usersRequestFiled: (state, action) => {
+        usersRequestFailed: (state, action) => {
             state.error = action.payload;
             state.isLoading = false;
         },
@@ -52,6 +52,7 @@ const usersSlice = createSlice({
         userLoggedOut: (state) => {
             state.entities = null;
             state.isLoggedIn = false;
+            state.error = null;
             state.auth = null;
             state.dataLoaded = false;
         },
@@ -61,7 +62,29 @@ const usersSlice = createSlice({
             ] = action.payload;
         },
         userUpdateData: (state, action) => {
-            state.entities = action.payload;
+            const updateUser = state.entities.find(
+                (u) => u._id === action.payload._id
+            );
+            switch (action.payload.type) {
+                case "rate":
+                    if (action.payload.rateDirection === "inc") {
+                        updateUser.rate = Number(updateUser.rate) + 0.1;
+                        if (updateUser.rate > 5) updateUser.rate = 1;
+                    } else {
+                        updateUser.rate = Number(updateUser.rate) - 0.1;
+                        if (updateUser.rate < 1) updateUser.rate = 5.0;
+                    }
+                    updateUser.rate = Number(updateUser.rate)
+                        .toFixed(1)
+                        .toString();
+                    break;
+                case "bookmark":
+                    updateUser.bookmark = !updateUser.bookmark;
+                    break;
+            }
+            state.entities[
+                state.entities.findIndex((u) => u._id === action.payload._id)
+            ] = updateUser;
         },
 
         authRequested: (state) => {
@@ -74,7 +97,7 @@ const { reducer: usersReducer, actions } = usersSlice;
 const {
     usersRequested,
     usersReceved,
-    usersRequestFiled,
+    usersRequestFailed,
     authRequestFailed,
     authRequestSuccess,
     userUpdateData,
@@ -97,7 +120,7 @@ export const login =
             dispatch(authRequestSuccess({ userId: data.userId }));
             history.push(redirect);
         } catch (error) {
-            const { code, message } = error.response.data.error;
+            const { code, message } = error.response.data;
             if (code === 400) {
                 const errorMessage = generetaAuthError(message);
                 dispatch(authRequestFailed({ message: errorMessage }));
@@ -121,39 +144,45 @@ export const signUp = (payload) => async (dispatch) => {
 export const logOut = () => (dispatch) => {
     localStorageService.removeAuthData();
     dispatch(userLoggedOut());
-    history.push("/");
+    if (history.location.pathname !== "/login") history.push("/login");
 };
 
 export const loadUsersList = () => async (dispatch, state) => {
     dispatch(usersRequested());
     try {
-        const { content } = await userService.get();
-        dispatch(usersReceved(content));
+        const data = await userService.get();
+        dispatch(usersReceved(data.content));
     } catch (error) {
-        dispatch(usersRequestFiled(error.message));
-        if (
-            !state().users.entities &&
-            state().users.isLoggedIn &&
-            state().users.error === "Request failed with status code 401"
-        ) {
-            toastErrorBounce("Требуется повторная авторизация");
-            dispatch(logOut());
-        }
+        if (error.response?.data) {
+            dispatch(usersRequestFailed(error.response.data));
+        } else dispatch(usersRequestFailed(error.message));
     }
 };
 export const updateUser = (payload) => async (dispatch) => {
     dispatch(userUpdateRequested());
     try {
-        const { content } = await userService.update(payload);
+        const { content } = await userService.update(payload.user || payload);
         dispatch(userUpdateSuccessed(content));
+
+        if (payload.redirect !== undefined ? !payload.redirect : false) return;
         history.push(`/users/${content._id}`);
     } catch (error) {
         dispatch(userUpdateFailed(error.message));
     }
 };
 
-export const refreshUsers = (payload) => async (dispatch) => {
+export const updateUserData = (payload) => (dispatch, state) => {
     dispatch(userUpdateData(payload));
+    dispatch(
+        updateUser({
+            user: {
+                ...state().users.entities.find(
+                    (user) => user._id === payload._id
+                )
+            },
+            redirect: false
+        })
+    );
 };
 
 export const getUsersList = () => (state) => state.users.entities;
@@ -172,6 +201,7 @@ export const getIsLoggedIn = () => (state) => state.users.isLoggedIn;
 export const getDataStatus = () => (state) => state.users.dataLoaded;
 export const getUsersLoadingStatus = () => (state) => state.users.isLoading;
 export const getCurrentUserId = () => (state) => state.users.auth.userId;
+export const getErrors = () => (state) => state.users.error;
 export const getAuthErrors = () => (state) =>
-    state.users.error?.message ? state.users.error?.message : state.users.error;
+    state.users.error?.message || state.users.error;
 export default usersReducer;

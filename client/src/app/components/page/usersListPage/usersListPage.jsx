@@ -14,14 +14,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     getCurrentUserId,
     getUsersList,
-    refreshUsers
+    updateUserData
 } from "../../../store/users";
 const UsersListPage = () => {
-    const users = useSelector(getUsersList());
-    const currentUserId = useSelector(getCurrentUserId());
-
     const dispatch = useDispatch();
 
+    const users = useSelector(getUsersList());
+    const currentUserId = useSelector(getCurrentUserId());
     const professions = useSelector(getProfessions());
     const professionsLoading = useSelector(getProfessionsLoadingStatus());
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,13 +34,13 @@ const UsersListPage = () => {
         // setUsers(users.filter((user) => user._id !== userId));
     };
     const handleToggleBookMark = (id) => {
-        const newArray = users.map((user) => {
+        users.map((user) => {
             if (user._id === id) {
                 return { ...user, bookmark: !user.bookmark };
             }
             return user;
         });
-        dispatch(refreshUsers(newArray));
+        dispatch(updateUserData({ _id: id, type: "bookmark" }));
         // setUsers(newArray);
         // console.log(newArray);
     };

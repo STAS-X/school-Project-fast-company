@@ -20,28 +20,27 @@ http.interceptors.request.use(
             //     (containSlash ? config.url.slice(0, -1) : config.url) + ".json";
             const expiresDate = localStorageService.getTokenExpiresDate();
             const refreshToken = localStorageService.getRefreshToken();
-            // const expireSession =
-            //     Math.floor(Math.abs(expiresDate - Date.now()) / 1000 / 3600) %
-            //     24;
-            // if (refreshToken && expireSession >= 0) {
-            //     config.headers = {
-            //         ...config.headers,
-            //         Authorization: ""
-            //     };
-            //     return config;
-            // }
-
+            const expireSession = Math.floor(
+                (Math.abs(Date.now() - expiresDate) / (1000 * 3600)) % 24
+            );
             if (refreshToken && expiresDate < Date.now()) {
                 const data = await authService.refresh();
-
                 localStorageService.setTokens(data);
             }
             const accessToken = localStorageService.getAccessToken();
             if (accessToken) {
-                config.headers = {
-                    ...config.headers,
-                    Authorization: `Bearer ${accessToken}`
-                };
+                if (expireSession < 3) {
+                    config.headers = {
+                        ...config.headers,
+                        Authorization: `Bearer ${accessToken}`
+                    };
+                } else {
+                    config.headers = {
+                        ...config.headers,
+                        Authorization: "",
+                        Session_Expire: true
+                    };
+                }
             }
         }
         return config;
@@ -71,11 +70,9 @@ http.interceptors.response.use(
             error.response.status >= 400 &&
             error.response.status < 500;
 
-        if (!expectedErrors) {
+        if (!expectedErrors && error.response.data.type !== "expires") {
             toastDarkBounce(
-                `При запросе данных произошла ошибка: ${
-                    error.message ? error.message : error.response.message
-                }`
+                `При запросе данных произошла ошибка: ${error.response?.data?.message || error.message || error}`
             );
         }
         return Promise.reject(error);

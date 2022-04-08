@@ -82,9 +82,13 @@ router.patch('/:userId', [
 	async (req, res) => {
 		try {
 			const { userId } = req.params;
+			const newUser = req.body;
+			newUser.id = newUser._id;
+			delete newUser._id
+
 			const updatedUser = await User.findOneAndUpdate(
-				{ id: { $eq: userId } },
-				req.body,
+				{ id: { $eq: newUser.id } },
+				newUser,
 				{
 					new: true,
 				}
