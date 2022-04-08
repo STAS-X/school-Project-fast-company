@@ -19,9 +19,9 @@ const PORT = config.get('port') || 3000;
 
 if (process.env.NODE_ENV === 'production') {
     console.log(chalk.red('This is production mode'));
-    app.use('/', express.static(path.join(__dirname,'client')));
+    app.use('/', express.static(path.join(__dirname,'client_code')));
 
-    const indexPath = path.join(__dirname, 'client', 'index.html');
+    const indexPath = path.join(__dirname, 'client_code', 'index.html');
     app.get('*', (req, res) => {
         res.sendFile(indexPath);
     })
