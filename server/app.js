@@ -49,8 +49,6 @@ async function start() {
 		app.listen(PORT, () => {
 			console.log(chalk.green(`Server has been starte on ${PORT} port`));
 		});
-
-		}
 	} catch (e) {
 		console.log(chalk.red(e));
 		process.exit(1);
