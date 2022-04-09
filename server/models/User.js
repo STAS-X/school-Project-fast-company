@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { generateUserData } = require('../utils/helpers');
 //const Profession = require('./Profession');
 //const Quality = require('./Quality');
 
@@ -44,11 +45,12 @@ const schema = new Schema(
 		completedMeetings: Number,
 		image: {
 			type: String,
+			default: generateUserData().image
 		},
 		rate: Number,
 		sex: {
 			type: String,
-			enum: 'male' | 'female' | 'other',
+			enum: ['male', 'female', 'other'],
 		},
 		profession: {
 			type: String,
