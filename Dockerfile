@@ -5,7 +5,7 @@ RUN npm install
 COPY client /app/client
 RUN npm run build
 
-FROM node:last as server
+FROM node:14 as server
 WORKDIR /app
 COPY server/package.json /app
 RUN npm install
@@ -13,5 +13,5 @@ COPY server /app
 
 COPY --from=client /app/client/build /app/client
 
-EXPOSE 8080
+EXPOSE 8043
 CMD ["npm", "start"]

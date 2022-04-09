@@ -1,13 +1,13 @@
 {
     "name": "fast-company",
     "version": "0.1.0",
-    "proxy": "http://localhost:8080",
-    "private": true,
+    "private": false,
     "dependencies": {
         "@reduxjs/toolkit": "^1.7.1",
         "@testing-library/jest-dom": "^5.11.4",
         "@testing-library/react": "^11.1.0",
         "@testing-library/user-event": "^12.1.10",
+        "web-vitals": "^1.0.1",
         "animate.css": "^4.1.1",
         "axios": "^0.24.0",
         "bootstrap": "^5.1.0",
@@ -23,8 +23,7 @@
         "react-router-dom": "^5.3.0",
         "react-scripts": "4.0.3",
         "react-select": "^5.1.0",
-        "react-toastify": "^8.2.0",
-        "web-vitals": "^1.0.1"
+        "react-toastify": "^8.2.0"
     },
     "scripts": {
         "start": "react-scripts start",

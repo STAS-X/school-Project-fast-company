@@ -1,6 +1,6 @@
 {
 	"port": 8080,
-	"portProd": 8043,
+	"portProd": 8080,
 	"mongoUri": "mongodb+srv://stanislav-x:qQ1234567890@cluster0.allfi.mongodb.net/app?retryWrites=true&w=majority",
 	"accessSecret": "super secret from backend",
 	"refreshSecret": "refresh secret from backend"

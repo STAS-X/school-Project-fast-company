@@ -1,5 +1,5 @@
 const express = require('express');
-const https = require('https');
+// const https = require('https');
 const config = require('config');
 const chalk = require('chalk');
 const cors = require('cors');
@@ -17,21 +17,13 @@ app.use(cors());
 app.use('/api', routes);
 
 const PORT = config.get('port') || 8080;
-const PORT_PROD = config.get('portProd') || 8043;
+const PORT_PROD = config.get('portProd') || 8080;
 // Creating object of key and certificate
 // for SSL
-const options = {
-	key: fs.readFileSync(path.join(__dirname, 'config', 'server.key')),
-	cert: fs.readFileSync(path.join(__dirname, 'config', 'server.cert')),
-};
-
-app.use(function (req, res, next) {
-	if (req.headers['x-forwarded-proto'] == 'http') {
-		return res.redirect(301, 'https://' + req.headers.host + '/');
-	} else {
-		return next();
-	}
-});
+// const options = {
+//	key: fs.readFileSync(path.join(__dirname, 'config', 'server.key')),
+//	cert: fs.readFileSync(path.join(__dirname, 'config', 'server.cert')),
+// };
 
 if (process.env.NODE_ENV === 'production') {
 	console.log(chalk.red('This is production mode'));
@@ -54,16 +46,10 @@ async function start() {
 		});
 		console.log(chalk.green(`MongoDB connect`));
 
-		// Creating https server by passing
-		// options and app object
-		if (process.env.NODE_ENV === 'production') {
-			https.createServer(options, app).listen(PORT_PROD, (req, res) => {
-				console.log(chalk.green(`Server has been started on ${PORT_PROD} port`));
-			});
-		} else {
-		    app.listen(PORT, () => {
-			 	console.log(chalk.green(`Server has been starte on ${PORT} port`));
-			});
+		app.listen(PORT, () => {
+			console.log(chalk.green(`Server has been starte on ${PORT} port`));
+		});
+
 		}
 	} catch (e) {
 		console.log(chalk.red(e));

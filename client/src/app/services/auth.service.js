@@ -20,7 +20,7 @@ const httpAuth = axios.create({
                 : configFile.apiDataEndpoint
             : configFile.apiEndpoint
     }auth/`,
-    httpsAgent: httpsAgent
+    httpsAgent
 });
 
 const authService = {
