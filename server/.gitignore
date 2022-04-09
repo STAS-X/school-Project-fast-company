@@ -1,1 +1,4 @@
+# npm modules
 /node_modules
+# producton
+/client
