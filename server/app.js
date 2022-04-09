@@ -1,51 +1,74 @@
-const express=require('express');
+const express = require('express');
+const https = require('https');
 const config = require('config');
 const chalk = require('chalk');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const routes = require('./routes');
 const mongoose = require('mongoose');
 const { initDb } = require('./startUp/initDatabase');
 
-const app=express();
+const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 app.use('/api', routes);
 
+const PORT = config.get('port') || 8080;
+const PORT_PROD = config.get('portProd') || 8043;
+// Creating object of key and certificate
+// for SSL
+const options = {
+	key: fs.readFileSync(path.join(__dirname, 'config', 'server.key')),
+	cert: fs.readFileSync(path.join(__dirname, 'config', 'server.cert')),
+};
 
-const PORT = config.get('port') || 3000;
+app.use(function (req, res, next) {
+	if (req.headers['x-forwarded-proto'] == 'http') {
+		return res.redirect(301, 'https://' + req.headers.host + '/');
+	} else {
+		return next();
+	}
+});
 
 if (process.env.NODE_ENV === 'production') {
-    console.log(chalk.red('This is production mode'));
-    app.use('/', express.static(path.join(__dirname,'client_code')));
+	console.log(chalk.red('This is production mode'));
+	app.use('/', express.static(path.join(__dirname, 'client')));
 
-    const indexPath = path.join(__dirname, 'client_code', 'index.html');
-    app.get('*', (req, res) => {
-        res.sendFile(indexPath);
-    })
-} else 
-    console.log(chalk.blue('This is development mode'));
+	const indexPath = path.join(__dirname, 'client', 'index.html');
+	app.get('*', (req, res) => {
+		res.sendFile(indexPath);
+	});
+} else console.log(chalk.blue('This is development mode'));
 
 async function start() {
-    try {
+	try {
+		mongoose.connection.once('open', () => {
+			initDb();
+		});
+		mongoose.connect(config.get('mongoUri'), {
+			// useNewUrlParser: true,
+			// useUnifiedTopology: true,
+		});
+		console.log(chalk.green(`MongoDB connect`));
 
-        mongoose.connection.once('open', ()=>{
-            initDb();
-        });
-        mongoose.connect(config.get('mongoUri'), {
-					// useNewUrlParser: true,
-					// useUnifiedTopology: true,
-				});
-        console.log(chalk.green(`MongoDB connect`));
-         app.listen(PORT, () => {
-		  			console.log(chalk.green(`Server has been starte on ${PORT} port`));
-                 });
-    } catch(e) {
-        console.log(chalk.red(e));
-        process.exit(1);
-    }
+		// Creating https server by passing
+		// options and app object
+		if (process.env.NODE_ENV === 'production') {
+			https.createServer(options, app).listen(PORT_PROD, (req, res) => {
+				console.log(chalk.green(`Server has been started on ${PORT_PROD} port`));
+			});
+		} else {
+		    app.listen(PORT, () => {
+			 	console.log(chalk.green(`Server has been starte on ${PORT} port`));
+			});
+		}
+	} catch (e) {
+		console.log(chalk.red(e));
+		process.exit(1);
+	}
 }
 
 start();

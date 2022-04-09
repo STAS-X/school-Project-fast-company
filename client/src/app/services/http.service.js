@@ -1,14 +1,24 @@
 import axios from "axios";
 import { toastDarkBounce } from "../utils/animateTostify";
 import configFile from "../config.json";
+import https from "https";
 import authService from "./auth.service";
 
 import localStorageService from "./localStorage.service";
 
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    requestCert: false,
+    rejectUnauthorized: false
+});
+
 const http = axios.create({
     baseURL: configFile.isMongoBase
-        ? configFile.apiDataEndpoint
-        : configFile.apiEndpoint
+        ? process.env.NODE_ENV === "production"
+            ? configFile.apiDataEndpointProd
+            : configFile.apiDataEndpoint
+        : configFile.apiEndpoint,
+    httpsAgent: httpsAgent
 });
 // const dispatch = useDispatch();
 
@@ -72,7 +82,9 @@ http.interceptors.response.use(
 
         if (!expectedErrors && error.response.data.type !== "expires") {
             toastDarkBounce(
-                `При запросе данных произошла ошибка: ${error.response?.data?.message || error.message || error}`
+                `При запросе данных произошла ошибка: ${
+                    error.response?.data?.message || error.message || error
+                }`
             );
         }
         return Promise.reject(error);

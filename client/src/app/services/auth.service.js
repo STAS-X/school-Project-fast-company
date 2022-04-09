@@ -2,13 +2,25 @@
 // import configFile from "../config.json";
 // import httpService from "./http.service";
 import configFile from "../config.json";
+import https from "https";
 import axios from "axios";
 import localStorageService from "./localStorage.service";
 
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    requestCert: false,
+    rejectUnauthorized: false
+});
+
 const httpAuth = axios.create({
-    baseURL: `${(configFile.isMongoBase
-        ? configFile.apiDataEndpoint
-        : configFile.apiEndpoint)}auth/`
+    baseURL: `${
+        configFile.isMongoBase
+            ? process.env.NODE_ENV === "production"
+                ? configFile.apiDataEndpointProd
+                : configFile.apiDataEndpoint
+            : configFile.apiEndpoint
+    }auth/`,
+    httpsAgent: httpsAgent
 });
 
 const authService = {
