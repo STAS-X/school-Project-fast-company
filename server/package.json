@@ -18,11 +18,12 @@
 		"concurrently": "^7.0.0",
 		"config": "^3.3.7",
 		"cors": "^2.8.5",
+		"cross-env": "^7.0.3",
 		"express": "^4.17.3",
 		"express-validator": "^6.14.0",
 		"jsonwebtoken": "^8.5.1",
+		"kill-port": "^1.6.1",
 		"mongoose": "^6.2.8",
-		"cross-env": "^7.0.3",
 		"react-scripts": "^4.0.3"
 	},
 	"devDependencies": {

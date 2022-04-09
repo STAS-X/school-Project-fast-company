@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getQualities } from "../../store/qualities";
 import { getProfessions } from "../../store/professions";
 import { signUp } from "../../store/users";
+import { transformBootColor } from "../../utils/transformColor";
 
 const RegisterForm = () => {
     const dispatch = useDispatch();
@@ -25,7 +26,8 @@ const RegisterForm = () => {
     const qualities = useSelector(getQualities());
     const qualitiesList = qualities.map((q) => ({
         label: q.name,
-        value: q._id
+        value: q._id,
+        color: transformBootColor(q.color)
     }));
     const professions = useSelector(getProfessions());
 
