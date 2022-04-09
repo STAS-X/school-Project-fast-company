@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const auth = require('../middleware/auth.middlware') 
+const auth = require('../middleware/auth.middlware');
 const { generateUserData } = require('../utils/helpers');
 const router = express.Router({ mergeParams: true });
 
@@ -8,7 +8,6 @@ const ObjectId = require('mongodb').ObjectId;
 const {
 	getEntityCollectionFromLiveMongoDB,
 } = require('../startUp/initDatabase');
-
 
 function isIdValid(id) {
 	try {
@@ -70,12 +69,18 @@ async function put(req, res) {
 	}
 }
 
-router.put('/', [ auth, async (req, res) => {
-	await put(req, res);
-}]);
-router.put('/:id', [ auth, async (req, res) => {
-	await put(req, res);
-}]);
+router.put('/', [
+	auth,
+	async (req, res) => {
+		await put(req, res);
+	},
+]);
+router.put('/:id', [
+	auth,
+	async (req, res) => {
+		await put(req, res);
+	},
+]);
 
 router.patch('/:userId', [
 	auth,
@@ -84,7 +89,7 @@ router.patch('/:userId', [
 			const { userId } = req.params;
 			const newUser = req.body;
 			newUser.id = newUser._id;
-			delete newUser._id
+			delete newUser._id;
 
 			const updatedUser = await User.findOneAndUpdate(
 				{ id: { $eq: newUser.id } },
@@ -109,59 +114,67 @@ router.patch('/:userId', [
 	},
 ]);
 
-router.get('/:id', [ auth, async (req, res) => {
-	try {
-		const { id } = req.params;
-		const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
-		const user = await mongoUsers.findOne(
-			{ id: { $eq: id } },
-			{
-				projection: {
+router.get('/:id', [
+	auth,
+	async (req, res) => {
+		try {
+			const { id } = req.params;
+			const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
+			const user = await mongoUsers.findOne(
+				{ id: { $eq: id } },
+				{
+					projection: {
+						_id: '$id',
+						name: '$name',
+						email: '$email',
+						password: '$password',
+						image: '$image',
+						sex: '$sex',
+						profession: '$profession',
+						qualities: '$qualities',
+						completedMeetings: '$completedMeetings',
+						rate: '$rate',
+						bookmark: '$bookmark',
+					},
+				}
+			);
+			res.status(200).json(user);
+		} catch (e) {
+			res.status(500).json({
+				message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
+			});
+		}
+	},
+]);
+
+router.get('/', [
+	auth,
+	async (req, res) => {
+		try {
+			const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
+			const list = await mongoUsers
+				.find({})
+				.project({
 					_id: '$id',
 					name: '$name',
 					email: '$email',
 					password: '$password',
 					image: '$image',
+					sex: '$sex',
 					profession: '$profession',
 					qualities: '$qualities',
 					completedMeetings: '$completedMeetings',
 					rate: '$rate',
 					bookmark: '$bookmark',
-				},
-			}
-		);
-		res.status(200).json(user);
-	} catch (e) {
-		res.status(500).json({
-			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
-		});
-	}
-}]);
-
-router.get('/', [ auth, async (req, res) => {
-	try {
-		const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
-		const list = await mongoUsers
-			.find({})
-			.project({
-				_id: '$id',
-				name: '$name',
-				email: '$email',
-				password: '$password',
-				image: '$image',
-				profession: '$profession',
-				qualities: '$qualities',
-				completedMeetings: '$completedMeetings',
-				rate: '$rate',
-				bookmark: '$bookmark',
-			})
-			.toArray();
-		res.status(200).json(list);
-	} catch (e) {
-		res.status(500).json({
-			message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
-		});
-	}
-}]);
+				})
+				.toArray();
+			res.status(200).json(list);
+		} catch (e) {
+			res.status(500).json({
+				message: `На сервере произошла ошибка ${e.message}. Попробуйте позже`,
+			});
+		}
+	},
+]);
 
 module.exports = router;
