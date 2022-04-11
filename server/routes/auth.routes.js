@@ -4,7 +4,7 @@ const Token = require('../models/Token');
 const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const tokenService = require('../services/token.service');
-// const { generateUserData } = require('../utils/helpers');
+const { generateUserData } = require('../utils/helpers');
 const ObjectId = require('mongodb').ObjectId;
 const router = express.Router({ mergeParams: true });
 
@@ -33,6 +33,7 @@ router.post('/signUp', [
 			}
 			const hashedPass = await bcrypt.hash(password, 10);
 			const newUser = await User.create({
+				...generateUserData(),
 				...req.body,
 				password: hashedPass,
 			});
@@ -108,16 +109,16 @@ router.post('/token', async (req, res) => {
 		const data = tokenService.validateRefresh(refreshToken);
 		const dbToken = await Token.findOne({ refreshToken });
 
-		const expireSession =
-			dbToken && dbToken.expiresDate
-				? Math.floor(Math.abs(dbToken.expiresDate - Date.now()) / 1000 / 3600) %
-				  24
-				: 0;
+		// const expireSession =
+		// 	dbToken && dbToken.expiresDate
+		// 		? Math.floor(Math.abs(dbToken.expiresDate - Date.now()) / 1000 / 3600) %
+		// 		  24
+		// 		: 0;
 		if (istokenInvalid(data, dbToken)) {
-			if (expireSession > 2)
-				return res.status(401).json({
-					message: `Current session expired by ${expireSession} hours. Reauthorization required.`,
-				});
+			// if (expireSession > 2)
+			// 	return res.status(401).json({
+			// 		message: `Current session expired by ${expireSession} hours. Reauthorization required.`,
+			// 	});
 			return res.status(401).json({ message: 'Unautorized' });
 		}
 

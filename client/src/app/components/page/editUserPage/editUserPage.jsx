@@ -70,7 +70,6 @@ const EditUserPage = () => {
 
         return result;
     };
-    console.log(currentUser);
     useEffect(() => {
         if (!professionLoading && !qualitiesLoading && currentUser && !data) {
             setData({

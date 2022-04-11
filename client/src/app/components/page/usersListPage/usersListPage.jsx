@@ -34,12 +34,6 @@ const UsersListPage = () => {
         // setUsers(users.filter((user) => user._id !== userId));
     };
     const handleToggleBookMark = (id) => {
-        users.map((user) => {
-            if (user._id === id) {
-                return { ...user, bookmark: !user.bookmark };
-            }
-            return user;
-        });
         dispatch(updateUserData({ _id: id, type: "bookmark" }));
         // setUsers(newArray);
         // console.log(newArray);
@@ -48,6 +42,10 @@ const UsersListPage = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedProf, searchQuery]);
+
+    useEffect(() => {
+        setFilterUsers(users);
+    }, [users]);
 
     const handleProfessionSelect = (item) => {
         if (searchQuery !== "") setSearchQuery("");
@@ -78,7 +76,7 @@ const UsersListPage = () => {
             : data;
         return filteredUsers.filter((u) => u._id !== currentUserId);
     }
-    const filteredUsers = filterUsers(users);
+    const [filteredUsers, setFilterUsers] = useState(filterUsers(users));
     const count = filteredUsers.length;
     const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
     const usersCrop = paginate(sortedUsers, currentPage, pageSize);

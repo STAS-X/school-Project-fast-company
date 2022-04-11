@@ -12,12 +12,12 @@ code {
         monospace;
 }
 
-.text-muted {
-    text-align: left;
+.text-muted >.text-secondary {
+    cursor: default;
 }
 
-.text-muted >span::selection {
-    background-color: rgba(255,255,255,0.99);
+.text-muted > span::selection {
+    background-color: rgba(255, 255, 255, 0.99);
 }
 
 /**

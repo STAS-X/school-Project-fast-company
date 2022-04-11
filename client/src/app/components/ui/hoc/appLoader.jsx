@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { toastDarkBounce } from "../../../utils/animateTostify";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ const AppLoader = ({ children }) => {
     const isLoggedIn = useSelector(getIsLoggedIn());
     const usersStatusLoading = useSelector(getUsersLoadingStatus());
     const authError = useSelector(getErrors());
+    const memoError = useMemo(() => authError, [authError]);
 
     useEffect(() => {
         dispatch(loadQualitiesList());
@@ -30,14 +31,16 @@ const AppLoader = ({ children }) => {
     }, [isLoggedIn]);
 
     useEffect(() => {
-        if (authError && authError.type === "expires") {
-            toastDarkBounce(authError.message);
-            dispatch(logOut());
+        if (memoError && memoError.type === "expires") {
+            toastDarkBounce(memoError.message);
+            setTimeout(() => {
+                dispatch(logOut());
+            }, 1500);
             return "need reauthorization";
         }
-    }, [authError]);
+    }, [memoError]);
 
-    if (usersStatusLoading) return "loading";
+    if (usersStatusLoading) return "Loading";
     return children;
 };
 

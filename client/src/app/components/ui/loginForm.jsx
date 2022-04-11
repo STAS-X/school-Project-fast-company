@@ -10,7 +10,7 @@ const LoginForm = () => {
     const [data, setData] = useState({
         email: "",
         password: "",
-        stayOn: false
+        stayOn: true
     });
     const loginError = useSelector(getAuthErrors());
     const history = useHistory();

@@ -7,6 +7,7 @@ import {
     getUserById,
     updateUserData
 } from "../../store/users";
+import Profession from "./profession";
 
 const UserCard = ({ user }) => {
     const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const UserCard = ({ user }) => {
                       currentUser._id !== user._id ? "primary" : "secondary"
                   }`
                 : "bi bi-caret-up text-secondary",
-        [rateDirection]
+        [rateDirection, user]
     );
 
     useEffect(() => setDirectionRate("dec"), []);
@@ -33,7 +34,7 @@ const UserCard = ({ user }) => {
                   currentUser._id !== user._id ? "primary" : "secondary"
               }`
             : "bi bi-caret-down text-secondary";
-    }, [rateDirection]);
+    }, [rateDirection, user]);
 
     const handleClick = () => {
         history.push(history.location.pathname + "/edit");
@@ -85,7 +86,7 @@ const UserCard = ({ user }) => {
                     <div className="mt-3">
                         <h4>{user.name}</h4>
                         <p className="text-secondary mb-1">
-                            {user.profession.name}
+                            <Profession id={user.profession} />
                         </p>
                         <div className="text-muted">
                             <i

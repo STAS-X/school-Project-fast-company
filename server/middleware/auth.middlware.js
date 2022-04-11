@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
 				return res.status(401).send({
 
 						message:
-							'Сессия завершилась более 3-х часов назад. Требуется повторная авторизация',
+							'Текущая сессия истекла. Требуется повторная авторизация',
 						type: 'expires',
 					});
 			return res.status(401).json({ message: 'Unauthorized' });

@@ -21,7 +21,7 @@ async function put(req, res) {
 	try {
 		const { id } = req.params;
 		const mongoUsers = await getEntityCollectionFromLiveMongoDB('users');
-		const updateUser = req.body;
+		const updateUser = { ...generateUserData(), ...req.body };
 
 		const newId = id ? id : updateUser._id;
 		if (updateUser._id) delete updateUser._id;
@@ -32,13 +32,13 @@ async function put(req, res) {
 			[
 				{
 					$set: {
-						image: {
-							$cond: {
-								if: { $eq: [true, { $toBool: '$image' }] },
-								then: '$image',
-								else: generateUserData().image,
-							},
-						},
+						// image: {
+						// 	$cond: {
+						// 		if: { $eq: [true, { $toBool: '$image' }] },
+						// 		then: '$image',
+						// 		else: generateUserData().image,
+						// 	},
+						// },
 						...updateUser,
 						id: newId,
 						updatedAt: { $toDate: '$$NOW' },

@@ -5,6 +5,7 @@ import userService from "../services/user.service";
 import { generetaAuthError } from "../utils/generateAuthError";
 // import { toastErrorBounce } from "../utils/animateTostify";
 import history from "../utils/history";
+
 const initialState = localStorageService.getAccessToken()
     ? {
           entities: null,
@@ -57,36 +58,11 @@ const usersSlice = createSlice({
             state.dataLoaded = false;
         },
         userUpdateSuccessed: (state, action) => {
+            action.payload.rate = Number(action.payload.rate).toFixed(1);
             state.entities[
                 state.entities.findIndex((u) => u._id === action.payload._id)
             ] = action.payload;
         },
-        userUpdateData: (state, action) => {
-            const updateUser = state.entities.find(
-                (u) => u._id === action.payload._id
-            );
-            switch (action.payload.type) {
-                case "rate":
-                    if (action.payload.rateDirection === "inc") {
-                        updateUser.rate = Number(updateUser.rate) + 0.1;
-                        if (updateUser.rate > 5) updateUser.rate = 1;
-                    } else {
-                        updateUser.rate = Number(updateUser.rate) - 0.1;
-                        if (updateUser.rate < 1) updateUser.rate = 5.0;
-                    }
-                    updateUser.rate = Number(updateUser.rate)
-                        .toFixed(1)
-                        .toString();
-                    break;
-                case "bookmark":
-                    updateUser.bookmark = !updateUser.bookmark;
-                    break;
-            }
-            state.entities[
-                state.entities.findIndex((u) => u._id === action.payload._id)
-            ] = updateUser;
-        },
-
         authRequested: (state) => {
             state.error = null;
         }
@@ -100,7 +76,6 @@ const {
     usersRequestFailed,
     authRequestFailed,
     authRequestSuccess,
-    userUpdateData,
     userLoggedOut,
     userUpdateSuccessed
 } = actions;
@@ -112,11 +87,11 @@ const userUpdateRequested = createAction("users/userUpdateRequested");
 export const login =
     ({ payload, redirect }) =>
     async (dispatch) => {
-        const { email, password } = payload;
+        const { email, password, stayOn } = payload;
         dispatch(authRequested());
         try {
             const data = await authService.login({ email, password });
-            localStorageService.setTokens(data);
+            localStorageService.setTokens({ ...data, stayOn });
             dispatch(authRequestSuccess({ userId: data.userId }));
             history.push(redirect);
         } catch (error) {
@@ -145,6 +120,7 @@ export const logOut = () => (dispatch) => {
     localStorageService.removeAuthData();
     dispatch(userLoggedOut());
     if (history.location.pathname !== "/login") history.push("/login");
+    history.go(0);
 };
 
 export const loadUsersList = () => async (dispatch, state) => {
@@ -164,23 +140,50 @@ export const updateUser = (payload) => async (dispatch) => {
         const { content } = await userService.update(payload.user || payload);
         dispatch(userUpdateSuccessed(content));
 
-        if (payload.redirect !== undefined ? !payload.redirect : false) return;
-        history.push(`/users/${content._id}`);
+        if (payload.redirect === undefined || payload.redirect) {
+            history.push(`/users/${content._id}`);
+        }
     } catch (error) {
         dispatch(userUpdateFailed(error.message));
     }
 };
 
 export const updateUserData = (payload) => (dispatch, state) => {
-    dispatch(userUpdateData(payload));
+    const modifyUser = state().users.entities.find(
+        (user) => user._id === payload._id
+    );
+    let { rate, bookmark } = modifyUser;
+
+    switch (payload.type) {
+        case "rate":
+            if (payload.rateDirection === "inc") {
+                rate = Number(rate) + 0.1;
+                if (rate > 5) rate = 1;
+            } else {
+                rate = Number(rate) - 0.1;
+                if (rate < 1) rate = 5.0;
+            }
+            rate = Number(rate).toFixed(1);
+            break;
+        case "bookmark":
+            bookmark = !bookmark;
+            break;
+    }
     dispatch(
         updateUser({
             user: {
-                ...state().users.entities.find(
-                    (user) => user._id === payload._id
-                )
+                ...modifyUser,
+                rate,
+                bookmark
             },
             redirect: false
+        })
+    );
+    dispatch(
+        userUpdateSuccessed({
+            ...modifyUser,
+            rate,
+            bookmark
         })
     );
 };
