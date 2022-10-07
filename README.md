@@ -1,4 +1,4 @@
-# FastCompany
+# Fast Company Project
 
 Проект написан в процессе обучения на курсе **Junior Frontend Developer** (ИП Владилен Минин), основной стэком Frontend-фреймворков при написании проекта был React/Redux
 Ссылка на итоговый [проект](https://a11024-d10b.g.d-f.pw).
