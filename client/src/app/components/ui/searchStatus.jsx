@@ -11,7 +11,7 @@ const SearchStatus = ({ length }) => {
         return "человек тусанет";
     };
     return (
-        <h2>
+        <h4>
             <span
                 className={"badge " + (length > 0 ? "bg-primary" : "bg-danger")}
             >
@@ -19,7 +19,7 @@ const SearchStatus = ({ length }) => {
                     ? `${length + " " + renderPhrase(length)}   с тобой сегодня`
                     : "Никто с тобой не тусанет"}
             </span>
-        </h2>
+        </h4>
     );
 };
 SearchStatus.propTypes = {

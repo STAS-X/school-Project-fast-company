@@ -8,7 +8,7 @@ const Main = () => {
     };
     return (
         <div className="container mt-5">
-            <h1> Main Page</h1>
+            <h1>Главная страница</h1>
             <h3>Инициализация данных в MongoDB</h3>
             <ul>
                 <li>Status:{status}</li>

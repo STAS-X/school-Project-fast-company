@@ -106,7 +106,7 @@ const UsersListPage = () => {
                 <input
                     type="text"
                     name="searchQuery"
-                    placeholder="Search..."
+                    placeholder="Поиск..."
                     onChange={handleSearchQuery}
                     value={searchQuery}
                 />

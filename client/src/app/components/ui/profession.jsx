@@ -12,7 +12,7 @@ const Profession = ({ id }) => {
     // console.log(prof, id, isLoading);
     if (!isLoading) {
         return <>{prof.name}</>;
-    } else return "loading ...";
+    } else return "Загружается ...";
 };
 Profession.propTypes = {
     id: PropTypes.string

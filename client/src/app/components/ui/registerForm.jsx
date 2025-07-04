@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { validator } from "../../utils/ validator";
 import TextField from "../common/form/textField";
 import SelectField from "../common/form/selectField";
@@ -12,6 +12,8 @@ import { signUp } from "../../store/users";
 import { transformBootColor } from "../../utils/transformColor";
 
 const RegisterForm = () => {
+    const firstRender = useRef(true);
+
     const dispatch = useDispatch();
     const [data, setData] = useState({
         email: "",
@@ -24,16 +26,17 @@ const RegisterForm = () => {
     });
 
     const qualities = useSelector(getQualities());
-    const qualitiesList = qualities.map((q) => ({
+    // console.log("Выбрали качества из базы", qualities);
+    const qualitiesList = qualities.map((q, index) => ({
         label: q.name,
-        value: q._id,
+        value: q._id ? q._id : index,
         color: transformBootColor(q.color)
     }));
     const professions = useSelector(getProfessions());
 
-    const professionsList = professions.map((p) => ({
+    const professionsList = professions.map((p, index) => ({
         label: p.name,
-        value: p._id
+        value: p._id ? p._id : index
     }));
     const [errors, setErrors] = useState({});
 
@@ -43,7 +46,7 @@ const RegisterForm = () => {
             [target.name]: target.value
         }));
     };
-    const validatorConfog = {
+    const validatorConfig = {
         email: {
             isRequired: {
                 message: "Электронная почта обязательна для заполнения"
@@ -89,10 +92,14 @@ const RegisterForm = () => {
         }
     };
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
         validate();
     }, [data]);
     const validate = () => {
-        const errors = validator(data, validatorConfog);
+        const errors = validator(data, validatorConfig);
         setErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -144,9 +151,9 @@ const RegisterForm = () => {
             />
             <RadioField
                 options={[
-                    { name: "Male", value: "male" },
-                    { name: "Female", value: "female" },
-                    { name: "Other", value: "other" }
+                    { name: "Муж", value: "male" },
+                    { name: "Жен", value: "female" },
+                    { name: "Иное", value: "other" }
                 ]}
                 value={data.sex}
                 name="sex"
@@ -157,7 +164,7 @@ const RegisterForm = () => {
                 options={qualitiesList}
                 onChange={handleChange}
                 name="qualities"
-                label="Выберите ваши качесвта"
+                label="Выберите ваши качества"
             />
             <CheckBoxField
                 value={data.licence}
@@ -172,7 +179,7 @@ const RegisterForm = () => {
                 disabled={!isValid}
                 className="btn btn-primary w-100 mx-auto"
             >
-                Submit
+                Подтвердить
             </button>
         </form>
     );

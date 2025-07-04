@@ -40,6 +40,7 @@ async function start() {
 		mongoose.connection.once('open', () => {
 			initDb();
 		});
+		mongoose.set('strictQuery', true);
 		mongoose.connect(config.get('mongoUri'), {
 			// useNewUrlParser: true,
 			// useUnifiedTopology: true,
@@ -47,7 +48,7 @@ async function start() {
 		console.log(chalk.green(`MongoDB connect`));
 
 		app.listen(PORT, () => {
-			console.log(chalk.green(`Server has been starte on ${PORT} port`));
+			console.log(chalk.green(`Server has been started on ${PORT} port`));
 		});
 	} catch (e) {
 		console.log(chalk.red(e));

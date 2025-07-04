@@ -13,7 +13,7 @@ const UsersLoader = ({ children }) => {
     const dispatch = useDispatch();
     if (!dataStatus) dispatch(loadUsersList());
 
-    if (loadingStatus) return "Loading";
+    if (loadingStatus) return "Загружаемся...";
     return children;
 };
 

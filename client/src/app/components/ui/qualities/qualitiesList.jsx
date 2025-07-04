@@ -16,7 +16,7 @@ const QualitiesList = ({ qualities }) => {
         dispatch(loadQualitiesList());
     }, []);
 
-    if (isLoading) return "Loadind ...";
+    if (isLoading) return "Загрузка...";
 
     return (
         <>

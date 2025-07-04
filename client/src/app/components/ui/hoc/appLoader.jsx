@@ -36,11 +36,11 @@ const AppLoader = ({ children }) => {
             setTimeout(() => {
                 dispatch(logOut());
             }, 1500);
-            return "need reauthorization";
+            return "Требуется авторизация";
         }
     }, [memoError]);
 
-    if (usersStatusLoading) return "Loading";
+    if (usersStatusLoading) return "Загружаемся...";
     return children;
 };
 

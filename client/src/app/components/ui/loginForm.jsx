@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { validator } from "../../utils/ validator";
 import TextField from "../common/form/textField";
 import CheckBoxField from "../common/form/checkBoxField";
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAuthErrors, login } from "../../store/users";
 
 const LoginForm = () => {
+    const firstRender = useRef(true);
     const [data, setData] = useState({
         email: "",
         password: "",
@@ -24,7 +25,7 @@ const LoginForm = () => {
         }));
     };
 
-    const validatorConfog = {
+    const validatorConfig = {
         email: {
             isRequired: {
                 message: "Электронная почта обязательна для заполнения"
@@ -37,10 +38,14 @@ const LoginForm = () => {
         }
     };
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
         validate();
     }, [data]);
     const validate = () => {
-        const errors = validator(data, validatorConfog);
+        const errors = validator(data, validatorConfig);
         setErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -87,7 +92,7 @@ const LoginForm = () => {
                 disabled={!isValid}
                 className="btn btn-primary w-100 mx-auto"
             >
-                Submit
+                Подтвердить
             </button>
         </form>
     );

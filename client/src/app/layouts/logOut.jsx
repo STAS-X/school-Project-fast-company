@@ -4,10 +4,10 @@ import { logOut } from "../store/users";
 const LogOut = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        console.log("logout");
+        // console.log("logout");
         dispatch(logOut());
     }, []);
-    return <h1>Loading</h1>;
+    return <h1>Вышли из аккаунта</h1>;
 };
 
 export default LogOut;

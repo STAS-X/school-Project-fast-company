@@ -3,12 +3,12 @@ function getRandomInt(min, max) {
 }
 
 function generateUserData() {
+	const genNumber = getRandomInt(1, 10);
 	return {
 		rate: getRandomInt(1, 5),
 		completedMeetings: getRandomInt(0, 200),
-		image: `https://avatars.dicebear.com/api/avataaars/${(Math.random() + 1)
-			.toString(36)
-			.substring(7)}.svg`,
+		image: `https://xsgames.co/randomusers/avatar.php?g=${genNumber < 5 ? 'male' : genNumber < 8 ? 'female' : 'pixel'}`,
+		// `https://api.dicebear.com/9.x/avataaars/${(Math.random() + 1).toString(36).substring(7)}/svg`,
 	};
 }
 

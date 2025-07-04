@@ -4,7 +4,7 @@ import Select, { components } from "react-select";
 import PropTypes from "prop-types";
 
 const MultiSelectField = ({ options, onChange, name, label, defaultValue }) => {
-    const EMOJIS = ["👍", "🤙", "👏", "👌", "🙌", "✌️", "🖖", "👐"];
+    const EMOJIS = ["👍", "😠", "👏", "👌", "🙌", "✌️", "❤️ ", "👐"];
     const optionsArray =
         !Array.isArray(options) && typeof options === "object"
             ? Object.keys(options).map((optionName) => ({
@@ -13,9 +13,10 @@ const MultiSelectField = ({ options, onChange, name, label, defaultValue }) => {
                   color: options[optionName].color
               }))
             : options;
+    // console.log("Выбрали опцию", options);
 
     const handleChange = (value) => {
-        onChange({ name: name, value });
+        onChange({ name, value });
     };
     const colourStyles = {
         control: (styles) => ({ ...styles, backgroundColor: "white" }),
@@ -78,20 +79,22 @@ const MultiSelectField = ({ options, onChange, name, label, defaultValue }) => {
     };
 
     const MultiValueContainer = ({ children, ...props }) => {
-        const arrayChildren = Children.toArray(children);
-        const newChlidren = Children.map(arrayChildren, (child, index) => {
-            return arrayChildren[arrayChildren.length - index - 1];
-        });
+         const arrayChildren = Children.toArray(children);
+         // let enchanceElement;
+         const newChildren = arrayChildren.map((child, index, arr) => {
+            if (child.props.innerProps.className.search("label") > -1) {
+                const enchanceElement = React.cloneElement(child, {
+                                                                   ...props,
+                                                                   children: `\u00A0${props.data.label}\u00A0${EMOJIS[optionsArray.findIndex((option) => option.value === props.data.value)]}\u00A0`
+                                                                  });
+                return enchanceElement;
+            } else {
+              return child;
+            }
+         }).map((child, index, arr) => { return arr[arr.length - index - 1]; });
         return (
             <components.MultiValueContainer {...props}>
-                {newChlidren}
-                {`${
-                    EMOJIS[
-                        optionsArray.findIndex(
-                            (option) => option.value === props.data.value
-                        )
-                    ]
-                }`}
+                {newChildren}
             </components.MultiValueContainer>
         );
     };

@@ -35,6 +35,7 @@ http.interceptors.request.use(
             const expireSession = Math.floor(
                 (Math.abs(Date.now() - expiresDate) / (1000 * 3600)) % 24
             );
+
             if (
                 refreshToken &&
                 expiresDate < Date.now() &&
@@ -51,8 +52,9 @@ http.interceptors.request.use(
                 Authorization: `Bearer ${accessToken}`
             };
 
+            // console.log(expireSession, "Время работы сессии");
             // Если сессия просрочена более чем на 3 часа автоматически разлогиниваемся
-            if (expireSession >= 3) {
+            if (expireSession >= 0.03) {
                 config.headers = {
                     ...config.headers,
                     Authorization: "",
